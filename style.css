@@ -1,10 +1,14 @@
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: #0f0f0f;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
   color: white;
 }
-
+.card,
+.btn,
+header input {
+  transition: all 0.2s ease;
+}
 /* Header */
 header {
   padding: 20px;
@@ -38,9 +42,10 @@ header input {
   width: 250px;
   padding: 16px;
   border-radius: 12px;
-  background: #1e1e1e;
+  background: rgba(30, 30, 30, 0.7); /* updated */
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  transition: transform 0.2s;
+  backdrop-filter: blur(10px);       /* added */
+
 }
 
 .card:hover {
