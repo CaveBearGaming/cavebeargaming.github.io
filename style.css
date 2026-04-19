@@ -1,77 +1,152 @@
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   color: white;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(76, 175, 80, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(0, 140, 255, 0.12), transparent 35%),
+    linear-gradient(135deg, #0a0a0a, #121212 60%, #0d0d0d);
+  min-height: 100vh;
 }
+
+/* Smooth global transitions */
+* {
+  box-sizing: border-box;
+}
+
 .card,
 .btn,
 header input {
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
-/* Header */
+
+/* HEADER (glass style) */
 header {
-  padding: 20px;
+  padding: 24px;
   text-align: center;
-  border-bottom: 1px solid #222;
+
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 header h1 {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
+/* Search input glass */
 header input {
-  padding: 10px;
-  width: 250px;
-  border-radius: 8px;
-  border: none;
+  padding: 12px 14px;
+  width: 280px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
   outline: none;
+  color: white;
+  backdrop-filter: blur(10px);
 }
 
-/* Grid layout */
+header input:focus {
+  border-color: rgba(76, 175, 80, 0.5);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+}
+
+/* GRID */
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 22px;
   justify-content: center;
-  padding: 20px;
+  padding: 26px;
 }
 
-/* Cards */
+/* GLASS CARDS (main upgrade) */
 .card {
   width: 250px;
-  padding: 16px;
-  border-radius: 12px;
-  background: rgba(30, 30, 30, 0.7); /* updated */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  backdrop-filter: blur(10px);       /* added */
+  padding: 18px;
+  border-radius: 16px;
 
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle glow overlay */
+.card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(76, 175, 80, 0.12), transparent 40%);
+  transform: rotate(25deg);
+  pointer-events: none;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(76, 175, 80, 0.25);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(76, 175, 80, 0.08);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 18px;
 }
 
 .card p {
-  color: #aaa;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 14px;
 }
 
-/* Button */
+/* BUTTON (modern pill + glow) */
 .btn {
   display: inline-block;
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: #4caf50;
+  margin-top: 12px;
+  padding: 9px 14px;
+
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
   color: white;
   text-decoration: none;
-  border-radius: 8px;
+
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 13px;
+
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.25);
 }
 
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(76, 175, 80, 0.35);
+}
+
+/* BANNER (more premium feel) */
 .banner {
   width: 100%;
   height: 320px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 14px;
   margin-top: 15px;
-}
 
+  filter: saturate(1.1) contrast(1.05);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
