@@ -67,6 +67,23 @@
     </div>
     
   </main>
+<script>
+const input = document.querySelector("input");
+const cards = document.querySelectorAll(".card");
 
+input.addEventListener("input", () => {
+  const value = input.value.toLowerCase();
+
+  cards.forEach(card => {
+    const title = card.querySelector("h2").innerText.toLowerCase();
+
+    if (title.includes(value)) {
+      card.style.display = "";
+    } else {
+      card.style.display = "none";
+    }
+  });
+});
+</script>
 </body>
 </html>
