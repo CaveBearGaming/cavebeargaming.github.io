@@ -86,14 +86,18 @@ input.addEventListener("input", () => {
     const title = card.querySelector("h2").innerText.toLowerCase();
 
     if (title.includes(value)) {
-      card.style.display = "";
+      card.classList.remove("hidden");
       anyVisible = true;
     } else {
-      card.style.display = "none";
+      card.classList.add("hidden");
     }
   });
 
-  empty.style.display = anyVisible ? "none" : "block";
+  if (anyVisible) {
+    empty.classList.remove("show");
+  } else {
+    empty.classList.add("show");
+  }
 });
 </script>
 </body>
