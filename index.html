@@ -68,24 +68,34 @@
       </a>
     </div>
     
+
+    <p id="empty" style="display:none;">No apps found</p>
+    
   </main>
 <script>
 const input = document.querySelector("input");
 const cards = document.querySelectorAll(".card");
+const empty = document.getElementById("empty");
 
 input.addEventListener("input", () => {
   const value = input.value.toLowerCase();
+
+  let anyVisible = false;
 
   cards.forEach(card => {
     const title = card.querySelector("h2").innerText.toLowerCase();
 
     if (title.includes(value)) {
       card.style.display = "";
+      anyVisible = true;
     } else {
       card.style.display = "none";
     }
   });
+
+  empty.style.display = anyVisible ? "none" : "block";
 });
 </script>
+</body>
 </body>
 </html>
