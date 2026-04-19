@@ -20,25 +20,50 @@ header input {
   transition: all 0.25s ease;
 }
 
-/* HEADER (glass style) */
 header {
-  padding: 24px;
+  margin: 20px;
+  padding: 20px;
   text-align: center;
 
-  background: rgba(20, 20, 20, 0.6);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border-radius: 16px;
+  position: sticky;
+  top: 12px;
+  z-index: 10;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+}
+
+/* Title */
 header h1 {
   margin: 0 0 12px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
 
-/* Search input glass */
+/* Search bar (kept but modernized slightly) */
 header input {
   padding: 12px 14px;
   width: 280px;
@@ -50,13 +75,15 @@ header input {
   outline: none;
   color: white;
   backdrop-filter: blur(10px);
+
+  transition: all 0.25s ease;
 }
 
 header input:focus {
   border-color: rgba(76, 175, 80, 0.5);
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+  transform: scale(1.02);
 }
-
 /* GRID */
 .grid {
   display: flex;
