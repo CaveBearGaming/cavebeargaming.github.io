@@ -7,13 +7,13 @@
 
 <style>
 :root {
-  --bg-dark: rgba(0,0,0,0.55);
+  --bg: rgba(0,0,0,0.55);
   --card: rgba(255,255,255,0.12);
   --text: white;
 }
 
 body.light {
-  --bg-dark: rgba(255,255,255,0.6);
+  --bg: rgba(255,255,255,0.65);
   --card: rgba(0,0,0,0.08);
   --text: black;
 }
@@ -31,13 +31,13 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg-dark);
+  background: var(--bg);
   backdrop-filter: blur(var(--blur, 10px));
 }
 
 header {
   text-align: center;
-  padding: 20px;
+  padding: 15px;
   font-size: 2rem;
   font-weight: 600;
   position: relative;
@@ -46,19 +46,45 @@ header {
 
 .clock {
   position: fixed;
-  top: 15px;
-  right: 15px;
+  top: 12px;
+  right: 12px;
   background: var(--card);
   padding: 8px 12px;
   border-radius: 10px;
   z-index: 3;
 }
 
+.search {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 2;
+}
+
+.search input {
+  width: 60%;
+  max-width: 500px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px 0 0 10px;
+  outline: none;
+}
+
+.search button {
+  padding: 12px 16px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0 10px 10px 0;
+  cursor: pointer;
+}
+
 .grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
   padding: 10px;
   position: relative;
   z-index: 2;
@@ -73,13 +99,12 @@ header {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  cursor: pointer;
-  position: relative;
+  cursor: grab;
   transition: 0.15s;
 }
 
-.tile:hover {
-  transform: scale(1.03);
+.tile:active {
+  cursor: grabbing;
 }
 
 .tile img {
@@ -91,23 +116,49 @@ header {
 
 .tile span {
   font-size: 13px;
-  overflow: hidden;
-}
-
-.folder {
-  width: 100%;
-  margin: 10px 0;
-  text-align: center;
-  font-size: 14px;
-  opacity: 0.8;
 }
 
 .delete {
   position: absolute;
   top: 5px;
   right: 8px;
-  font-size: 14px;
   opacity: 0.6;
+  cursor: pointer;
+}
+
+.panelBtn {
+  position: fixed;
+  left: 15px;
+  bottom: 15px;
+  z-index: 3;
+  background: var(--card);
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.settings {
+  position: fixed;
+  left: 15px;
+  bottom: 60px;
+  background: var(--card);
+  padding: 10px;
+  border-radius: 12px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 4;
+}
+
+.settings button {
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.15);
+  color: var(--text);
 }
 
 .fab {
@@ -123,26 +174,6 @@ header {
   font-size: 26px;
   cursor: pointer;
   z-index: 3;
-}
-
-.panel {
-  position: fixed;
-  left: 15px;
-  bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 3;
-}
-
-.panel button {
-  border: none;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-  font-size: 12px;
 }
 
 .modal {
@@ -185,16 +216,26 @@ header {
 
 <body>
 
-<div class="overlay" id="overlay"></div>
+<div class="overlay"></div>
 
 <div class="clock" id="clock"></div>
 
 <header>Speed Dial+</header>
 
+<div class="search">
+  <form action="https://www.google.com/search" method="GET" style="display:flex;width:100%;justify-content:center;">
+    <input name="q" placeholder="Search the web..." />
+    <button>Search</button>
+  </form>
+</div>
+
 <div class="grid" id="grid"></div>
 
-<div class="panel">
-  <button onclick="openModal()">+ Add</button>
+<!-- settings -->
+<button class="panelBtn" onclick="toggleSettings()">⚙ Settings</button>
+
+<div class="settings" id="settings">
+  <button onclick="openModal()">Add Tile</button>
   <button onclick="toggleTheme()">Theme</button>
   <button onclick="toggleBlur()">Blur</button>
   <button onclick="setWallpaper()">Wallpaper</button>
@@ -202,12 +243,12 @@ header {
 
 <button class="fab" onclick="openModal()">+</button>
 
+<!-- modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <input id="name" placeholder="Name" />
     <input id="url" placeholder="URL" />
-    <input id="img" placeholder="Image URL (optional)" />
-    <input id="folder" placeholder="Folder (e.g. Work)" />
+    <input id="img" placeholder="Image URL" />
     <button onclick="addTile()">Add</button>
   </div>
 </div>
@@ -227,33 +268,25 @@ document.body.style.backgroundImage =
     ? `url(${localStorage.getItem("wallpaper")})`
     : "none";
 
-// FIXED CLOCK (real system time)
+/* ⏰ FIXED TIME (no timezone bugs) */
 function updateClock() {
-  const now = new Date();
-  document.getElementById("clock").innerText =
-    now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  document.getElementById("clock").innerText = `${h}:${m}`;
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// render
+/* render */
 function render() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
 
-  let currentFolder = "";
-
   tiles.forEach((t, i) => {
-    if (t.folder !== currentFolder) {
-      currentFolder = t.folder;
-      const f = document.createElement("div");
-      f.className = "folder";
-      f.innerText = currentFolder || "Main";
-      grid.appendChild(f);
-    }
-
     const div = document.createElement("div");
     div.className = "tile";
+    div.draggable = true;
 
     const img = t.img || `https://www.google.com/s2/favicons?sz=64&domain=${t.url}`;
 
@@ -269,65 +302,81 @@ function render() {
       }
     };
 
+    // drag system
+    div.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("index", i);
+    });
+
+    div.addEventListener("dragover", e => e.preventDefault());
+
+    div.addEventListener("drop", e => {
+      const from = e.dataTransfer.getData("index");
+      const to = i;
+      const moved = tiles.splice(from, 1)[0];
+      tiles.splice(to, 0, moved);
+      render();
+    });
+
     grid.appendChild(div);
   });
 
   localStorage.setItem("tiles", JSON.stringify(tiles));
 }
 
-// add
+/* add/remove */
 function addTile() {
   tiles.push({
     name: name.value,
     url: url.value,
-    img: img.value,
-    folder: folder.value
+    img: img.value
   });
-
   modal.style.display = "none";
   render();
 }
 
-// remove
 function removeTile(i) {
   tiles.splice(i, 1);
   render();
 }
 
-// modal
-function openModal() {
-  modal.style.display = "flex";
+/* settings */
+function toggleSettings() {
+  const s = document.getElementById("settings");
+  s.style.display = s.style.display === "flex" ? "none" : "flex";
 }
 
-// theme
 function toggleTheme() {
   theme = theme === "dark" ? "light" : "dark";
   document.body.className = theme;
   localStorage.setItem("theme", theme);
 }
 
-// blur
 function toggleBlur() {
-  blur = blur == "0" ? "10" : "0";
+  blur = blur === "0" ? "10" : "0";
   document.documentElement.style.setProperty("--blur", blur + "px");
   localStorage.setItem("blur", blur);
 }
 
-// wallpaper
 function setWallpaper() {
   wallpaperInput.click();
 }
 
 wallpaperInput.onchange = (e) => {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-
-  reader.onload = (ev) => {
+  const r = new FileReader();
+  r.onload = ev => {
     localStorage.setItem("wallpaper", ev.target.result);
     document.body.style.backgroundImage = `url(${ev.target.result})`;
   };
+  r.readAsDataURL(e.target.files[0]);
+};
 
-  reader.readAsDataURL(file);
+/* modal */
+function openModal() {
+  modal.style.display = "flex";
+}
+
+window.onclick = (e) => {
+  if (e.target.id === "modal") modal.style.display = "none";
 };
 
 render();
