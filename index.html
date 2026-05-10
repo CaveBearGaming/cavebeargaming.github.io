@@ -3,35 +3,60 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Speed Dial</title>
+<title>Speed Dial+</title>
 
 <style>
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: radial-gradient(circle at top, #1e293b, #0f172a);
     color: white;
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
   }
 
   header {
     text-align: center;
-    padding: 30px 10px 10px;
+    padding: 25px;
     font-size: 2rem;
     font-weight: 600;
+    position: relative;
+    z-index: 2;
+  }
+
+  .clock {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+    font-size: 14px;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 12px;
+    border-radius: 10px;
+    z-index: 3;
   }
 
   .search {
     display: flex;
     justify-content: center;
-    margin: 10px 0 30px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
   }
 
   .search input {
     width: 60%;
     max-width: 500px;
     padding: 12px;
-    border-radius: 10px 0 0 10px;
     border: none;
+    border-radius: 10px 0 0 10px;
     outline: none;
   }
 
@@ -50,12 +75,14 @@
     justify-content: center;
     gap: 18px;
     padding: 10px;
+    position: relative;
+    z-index: 2;
   }
 
   .tile {
     width: 110px;
     height: 110px;
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.1);
     border-radius: 18px;
     display: flex;
     flex-direction: column;
@@ -68,23 +95,20 @@
 
   .tile:hover {
     transform: scale(1.05);
-    background: rgba(255,255,255,0.15);
   }
 
   .tile img {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 8px;
-    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-bottom: 6px;
   }
 
   .tile span {
     font-size: 12px;
     text-align: center;
     max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .delete {
@@ -92,24 +116,42 @@
     top: 5px;
     right: 8px;
     font-size: 14px;
-    opacity: 0.6;
     cursor: pointer;
+    opacity: 0.6;
   }
 
-  .delete:hover {
-    opacity: 1;
-  }
+  .delete:hover { opacity: 1; }
 
-  .add-btn {
+  .fab {
     position: fixed;
-    bottom: 25px;
-    right: 25px;
+    bottom: 20px;
+    right: 20px;
     background: #3b82f6;
+    border: none;
     width: 55px;
     height: 55px;
     border-radius: 50%;
-    font-size: 28px;
+    font-size: 26px;
+    color: white;
+    cursor: pointer;
+    z-index: 3;
+  }
+
+  .panel {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 3;
+  }
+
+  .panel button {
+    padding: 8px 10px;
     border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.15);
     color: white;
     cursor: pointer;
   }
@@ -121,18 +163,19 @@
     display: none;
     align-items: center;
     justify-content: center;
+    z-index: 10;
   }
 
   .modal-content {
     background: #0f172a;
     padding: 20px;
     border-radius: 12px;
-    width: 300px;
+    width: 320px;
   }
 
   .modal-content input {
     width: 100%;
-    margin: 8px 0;
+    margin: 6px 0;
     padding: 10px;
     border-radius: 8px;
     border: none;
@@ -142,42 +185,72 @@
     width: 100%;
     padding: 10px;
     border: none;
-    border-radius: 8px;
     background: #3b82f6;
     color: white;
-    cursor: pointer;
+    border-radius: 8px;
     margin-top: 8px;
+    cursor: pointer;
   }
 </style>
 </head>
 
 <body>
 
-<header>Speed Dial</header>
+<div class="overlay"></div>
+
+<div class="clock" id="clock"></div>
+
+<header>Speed Dial+</header>
 
 <div class="search">
   <form action="https://www.google.com/search" method="GET" style="display:flex;width:100%;justify-content:center;">
-    <input name="q" placeholder="Search the web..." />
+    <input name="q" placeholder="Search..." />
     <button>Search</button>
   </form>
 </div>
 
 <div class="grid" id="grid"></div>
 
-<button class="add-btn" onclick="openModal()">+</button>
+<!-- controls -->
+<div class="panel">
+  <button onclick="openModal()">+ Add Site</button>
+  <button onclick="setWallpaper()">🖼 Wallpaper</button>
+</div>
 
+<button class="fab" onclick="openModal()">+</button>
+
+<!-- modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <h3>Add Site</h3>
     <input id="name" placeholder="Name" />
     <input id="url" placeholder="https://example.com" />
+    <input id="img" placeholder="Image URL (or leave blank for favicon)" />
     <button onclick="addTile()">Add</button>
   </div>
 </div>
 
+<input type="file" id="wallpaperInput" hidden accept="image/*"/>
+
 <script>
 let tiles = JSON.parse(localStorage.getItem("tiles") || "[]");
 
+// wallpaper load
+document.body.style.backgroundImage =
+  localStorage.getItem("wallpaper")
+    ? `url(${localStorage.getItem("wallpaper")})`
+    : "none";
+
+// clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").innerText =
+    now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// render tiles
 function render() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
@@ -186,9 +259,13 @@ function render() {
     const div = document.createElement("div");
     div.className = "tile";
 
+    const img = t.img
+      ? t.img
+      : `https://www.google.com/s2/favicons?sz=64&domain=${t.url}`;
+
     div.innerHTML = `
       <div class="delete" onclick="removeTile(${i})">✕</div>
-      <img src="https://www.google.com/s2/favicons?sz=64&domain=${t.url}" />
+      <img src="${img}" />
       <span>${t.name}</span>
     `;
 
@@ -204,33 +281,57 @@ function render() {
   localStorage.setItem("tiles", JSON.stringify(tiles));
 }
 
-function openModal() {
-  document.getElementById("modal").style.display = "flex";
-}
-
+// add tile
 function addTile() {
   const name = document.getElementById("name").value;
   const url = document.getElementById("url").value;
+  const img = document.getElementById("img").value;
 
   if (!name || !url) return;
 
-  tiles.push({ name, url });
-  document.getElementById("modal").style.display = "none";
-  document.getElementById("name").value = "";
-  document.getElementById("url").value = "";
-
+  tiles.push({ name, url, img });
+  closeModal();
   render();
 }
 
+// remove tile
 function removeTile(i) {
   tiles.splice(i, 1);
   render();
 }
 
+// modal
+function openModal() {
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+  document.getElementById("name").value = "";
+  document.getElementById("url").value = "";
+  document.getElementById("img").value = "";
+}
+
+// wallpaper
+function setWallpaper() {
+  document.getElementById("wallpaperInput").click();
+}
+
+document.getElementById("wallpaperInput").onchange = function(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+    localStorage.setItem("wallpaper", event.target.result);
+    document.body.style.backgroundImage = `url(${event.target.result})`;
+  };
+
+  reader.readAsDataURL(file);
+};
+
+// close modal click outside
 window.onclick = (e) => {
-  if (e.target.id === "modal") {
-    document.getElementById("modal").style.display = "none";
-  }
+  if (e.target.id === "modal") closeModal();
 };
 
 render();
