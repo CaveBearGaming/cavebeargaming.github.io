@@ -3,24 +3,25 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Speed Dial+</title>
+<title>Speed Dial Pro</title>
 
 <style>
 :root {
   --bg: rgba(0,0,0,0.55);
   --card: rgba(255,255,255,0.12);
   --text: white;
+  --blur: 10px;
 }
 
 body.light {
-  --bg: rgba(255,255,255,0.65);
+  --bg: rgba(255,255,255,0.6);
   --card: rgba(0,0,0,0.08);
   --text: black;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI";
   color: var(--text);
   background-size: cover;
   background-position: center;
@@ -32,12 +33,12 @@ body {
   position: fixed;
   inset: 0;
   background: var(--bg);
-  backdrop-filter: blur(var(--blur, 10px));
+  backdrop-filter: blur(var(--blur));
 }
 
 header {
   text-align: center;
-  padding: 15px;
+  padding: 18px;
   font-size: 2rem;
   font-weight: 600;
   position: relative;
@@ -46,18 +47,18 @@ header {
 
 .clock {
   position: fixed;
-  top: 12px;
-  right: 12px;
-  background: var(--card);
+  top: 15px;
+  right: 15px;
   padding: 8px 12px;
+  background: var(--card);
   border-radius: 10px;
-  z-index: 3;
+  z-index: 5;
 }
 
 .search {
   display: flex;
   justify-content: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   position: relative;
   z-index: 2;
 }
@@ -77,22 +78,21 @@ header {
   background: #3b82f6;
   color: white;
   border-radius: 0 10px 10px 0;
-  cursor: pointer;
 }
 
+/* SNAP GRID */
 .grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 14px;
   padding: 10px;
   position: relative;
   z-index: 2;
 }
 
+/* RECTANGLE TILES */
 .tile {
-  width: 140px;
-  height: 80px;
+  height: 70px;
   background: var(--card);
   border-radius: 14px;
   display: flex;
@@ -100,12 +100,10 @@ header {
   gap: 10px;
   padding: 10px;
   cursor: grab;
-  transition: 0.15s;
+  user-select: none;
 }
 
-.tile:active {
-  cursor: grabbing;
-}
+.tile:active { cursor: grabbing; }
 
 .tile img {
   width: 44px;
@@ -114,76 +112,79 @@ header {
   object-fit: cover;
 }
 
-.tile span {
+/* FOLDERS */
+.folder {
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.folder-title {
   font-size: 13px;
-}
-
-.delete {
-  position: absolute;
-  top: 5px;
-  right: 8px;
-  opacity: 0.6;
+  margin-bottom: 6px;
   cursor: pointer;
+  opacity: 0.8;
 }
 
-.panelBtn {
+.folder-content {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-btn {
   position: fixed;
-  left: 15px;
-  bottom: 15px;
-  z-index: 3;
+  bottom: 20px;
+  left: 20px;
   background: var(--card);
   border: none;
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: 10px;
-  color: var(--text);
   cursor: pointer;
+  z-index: 5;
 }
 
 .settings {
   position: fixed;
-  left: 15px;
-  bottom: 60px;
-  background: var(--card);
-  padding: 10px;
+  bottom: 70px;
+  left: 20px;
+  background: #111827;
+  padding: 12px;
   border-radius: 12px;
   display: none;
   flex-direction: column;
   gap: 8px;
-  z-index: 4;
+  z-index: 10;
 }
 
 .settings button {
-  border: none;
   padding: 8px;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
-  background: rgba(255,255,255,0.15);
-  color: var(--text);
 }
 
 .fab {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #3b82f6;
-  border: none;
   width: 55px;
   height: 55px;
   border-radius: 50%;
+  background: #3b82f6;
+  border: none;
   color: white;
   font-size: 26px;
-  cursor: pointer;
-  z-index: 3;
+  z-index: 5;
 }
 
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
   display: none;
-  align-items: center;
+  background: rgba(0,0,0,0.6);
   justify-content: center;
-  z-index: 10;
+  align-items: center;
+  z-index: 20;
 }
 
 .modal-content {
@@ -203,27 +204,23 @@ header {
 
 .modal-content button {
   width: 100%;
+  margin-top: 10px;
   padding: 10px;
   border: none;
   background: #3b82f6;
   color: white;
   border-radius: 8px;
-  margin-top: 8px;
-  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
-
 <div class="overlay"></div>
-
 <div class="clock" id="clock"></div>
-
-<header>Speed Dial+</header>
+<header>Speed Dial Pro</header>
 
 <div class="search">
-  <form action="https://www.google.com/search" method="GET" style="display:flex;width:100%;justify-content:center;">
+  <form action="https://www.google.com/search" method="GET" style="display:flex;">
     <input name="q" placeholder="Search the web..." />
     <button>Search</button>
   </form>
@@ -231,115 +228,47 @@ header {
 
 <div class="grid" id="grid"></div>
 
-<!-- settings -->
-<button class="panelBtn" onclick="toggleSettings()">⚙ Settings</button>
+<button class="settings-btn" onclick="toggleSettings()">⚙</button>
 
 <div class="settings" id="settings">
-  <button onclick="openModal()">Add Tile</button>
   <button onclick="toggleTheme()">Theme</button>
   <button onclick="toggleBlur()">Blur</button>
   <button onclick="setWallpaper()">Wallpaper</button>
+  <button onclick="openModal()">Add Tile</button>
+  <button onclick="addFolder()">Add Folder</button>
 </div>
 
 <button class="fab" onclick="openModal()">+</button>
 
-<!-- modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <input id="name" placeholder="Name" />
-    <input id="url" placeholder="URL" />
-    <input id="img" placeholder="Image URL" />
+    <input id="url" placeholder="URL (leave empty for folder)" />
+    <input id="img" placeholder="Image URL (optional)" />
     <button onclick="addTile()">Add</button>
   </div>
 </div>
 
-<input type="file" id="wallpaperInput" hidden accept="image/*"/>
+<input type="file" id="wallpaperInput" hidden />
 
 <script>
 let tiles = JSON.parse(localStorage.getItem("tiles") || "[]");
 let theme = localStorage.getItem("theme") || "dark";
-let blur = localStorage.getItem("blur") || "10";
 
 document.body.className = theme;
-document.documentElement.style.setProperty("--blur", blur + "px");
 
-document.body.style.backgroundImage =
-  localStorage.getItem("wallpaper")
-    ? `url(${localStorage.getItem("wallpaper")})`
-    : "none";
+if (localStorage.getItem("wallpaper")) {
+  document.body.style.backgroundImage = `url(${localStorage.getItem("wallpaper")})`;
+}
 
-/* ⏰ FIXED TIME (no timezone bugs) */
 function updateClock() {
-  const d = new Date();
-  const h = String(d.getHours()).padStart(2,'0');
-  const m = String(d.getMinutes()).padStart(2,'0');
-  document.getElementById("clock").innerText = `${h}:${m}`;
+  const now = new Date();
+  document.getElementById("clock").innerText =
+    now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-/* render */
-function render() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-
-  tiles.forEach((t, i) => {
-    const div = document.createElement("div");
-    div.className = "tile";
-    div.draggable = true;
-
-    const img = t.img || `https://www.google.com/s2/favicons?sz=64&domain=${t.url}`;
-
-    div.innerHTML = `
-      <div class="delete" onclick="removeTile(${i})">✕</div>
-      <img src="${img}">
-      <span>${t.name}</span>
-    `;
-
-    div.onclick = (e) => {
-      if (!e.target.classList.contains("delete")) {
-        window.open(t.url, "_blank");
-      }
-    };
-
-    // drag system
-    div.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("index", i);
-    });
-
-    div.addEventListener("dragover", e => e.preventDefault());
-
-    div.addEventListener("drop", e => {
-      const from = e.dataTransfer.getData("index");
-      const to = i;
-      const moved = tiles.splice(from, 1)[0];
-      tiles.splice(to, 0, moved);
-      render();
-    });
-
-    grid.appendChild(div);
-  });
-
-  localStorage.setItem("tiles", JSON.stringify(tiles));
-}
-
-/* add/remove */
-function addTile() {
-  tiles.push({
-    name: name.value,
-    url: url.value,
-    img: img.value
-  });
-  modal.style.display = "none";
-  render();
-}
-
-function removeTile(i) {
-  tiles.splice(i, 1);
-  render();
-}
-
-/* settings */
 function toggleSettings() {
   const s = document.getElementById("settings");
   s.style.display = s.style.display === "flex" ? "none" : "flex";
@@ -352,9 +281,13 @@ function toggleTheme() {
 }
 
 function toggleBlur() {
-  blur = blur === "0" ? "10" : "0";
-  document.documentElement.style.setProperty("--blur", blur + "px");
-  localStorage.setItem("blur", blur);
+  const current = getComputedStyle(document.documentElement)
+    .getPropertyValue("--blur").trim();
+
+  document.documentElement.style.setProperty(
+    "--blur",
+    current === "0px" ? "10px" : "0px"
+  );
 }
 
 function setWallpaper() {
@@ -363,16 +296,85 @@ function setWallpaper() {
 
 wallpaperInput.onchange = (e) => {
   const r = new FileReader();
-  r.onload = ev => {
+  r.onload = (ev) => {
     localStorage.setItem("wallpaper", ev.target.result);
     document.body.style.backgroundImage = `url(${ev.target.result})`;
   };
   r.readAsDataURL(e.target.files[0]);
 };
 
-/* modal */
+function render() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  tiles.forEach((t, i) => {
+
+    /* FOLDER */
+    if (t.type === "folder") {
+      const f = document.createElement("div");
+      f.className = "folder";
+
+      const title = document.createElement("div");
+      title.className = "folder-title";
+      title.innerText = "📁 " + t.name;
+
+      const content = document.createElement("div");
+      content.className = "folder-content";
+
+      t.items.forEach(item => {
+        const d = document.createElement("div");
+        d.className = "tile";
+        d.innerHTML = `<img src='https://www.google.com/s2/favicons?sz=64&domain=${item.url}'><span>${item.name}</span>`;
+        d.onclick = () => window.open(item.url);
+        content.appendChild(d);
+      });
+
+      let open = true;
+      title.onclick = () => {
+        open = !open;
+        content.style.display = open ? "grid" : "none";
+      };
+
+      f.appendChild(title);
+      f.appendChild(content);
+      grid.appendChild(f);
+      return;
+    }
+
+    /* TILE */
+    const div = document.createElement("div");
+    div.className = "tile";
+    div.draggable = true;
+
+    const img = t.img || `https://www.google.com/s2/favicons?sz=64&domain=${t.url}`;
+
+    div.innerHTML = `<img src="${img}"><span>${t.name}</span>`;
+
+    div.onclick = () => window.open(t.url, "_blank");
+
+    grid.appendChild(div);
+  });
+
+  localStorage.setItem("tiles", JSON.stringify(tiles));
+}
+
 function openModal() {
   modal.style.display = "flex";
+}
+
+function addTile() {
+  tiles.push({ name: name.value, url: url.value, img: img.value });
+  modal.style.display = "none";
+  render();
+}
+
+function addFolder() {
+  tiles.push({
+    type: "folder",
+    name: "New Folder",
+    items: []
+  });
+  render();
 }
 
 window.onclick = (e) => {
@@ -381,6 +383,5 @@ window.onclick = (e) => {
 
 render();
 </script>
-
 </body>
 </html>
