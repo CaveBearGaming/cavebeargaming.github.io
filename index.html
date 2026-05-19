@@ -1,387 +1,656 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Speed Dial Pro</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Google+Sans+Display:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: rgba(0,0,0,0.55);
-  --card: rgba(255,255,255,0.12);
-  --text: white;
-  --blur: 10px;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body.light {
-  --bg: rgba(255,255,255,0.6);
-  --card: rgba(0,0,0,0.08);
-  --text: black;
-}
+  :root {
+    --md-primary: #1a73e8;
+    --md-on-primary: #ffffff;
+    --md-primary-container: #d3e3fd;
+    --md-on-primary-container: #041e49;
+    --md-secondary: #4285f4;
+    --md-surface: #fef7ff;
+    --md-surface-variant: #e7e0ec;
+    --md-on-surface: #1c1b1f;
+    --md-on-surface-variant: #49454f;
+    --md-outline: #79747e;
+    --md-outline-variant: #cac4d0;
+    --md-bg: #fffbfe;
+    --md-tonal: #e8f0fe;
+    --md-shadow: rgba(0,0,0,0.08);
+    --md-shadow-md: rgba(0,0,0,0.15);
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 28px;
+    --radius-full: 50px;
+    font-family: 'Google Sans', sans-serif;
+  }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI";
-  color: var(--text);
-  background-size: cover;
-  background-position: center;
-  height: 100vh;
-  overflow: hidden;
-}
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --md-primary: #a8c7fa;
+      --md-on-primary: #062e6f;
+      --md-primary-container: #0842a0;
+      --md-on-primary-container: #d3e3fd;
+      --md-surface: #1c1b1f;
+      --md-surface-variant: #49454f;
+      --md-on-surface: #e6e1e5;
+      --md-on-surface-variant: #cac4d0;
+      --md-outline: #938f99;
+      --md-outline-variant: #49454f;
+      --md-bg: #141218;
+      --md-tonal: #1a2848;
+      --md-shadow: rgba(0,0,0,0.4);
+      --md-shadow-md: rgba(0,0,0,0.6);
+    }
+  }
 
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  backdrop-filter: blur(var(--blur));
-}
+  body {
+    background: var(--md-bg);
+    color: var(--md-on-surface);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 48px;
+    position: relative;
+    overflow-x: hidden;
+  }
 
-header {
-  text-align: center;
-  padding: 18px;
-  font-size: 2rem;
-  font-weight: 600;
-  position: relative;
-  z-index: 2;
-}
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 0%, rgba(66,133,244,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 300px at 80% 10%, rgba(234,67,53,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 400px at 60% 80%, rgba(52,168,83,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-.clock {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  padding: 8px 12px;
-  background: var(--card);
-  border-radius: 10px;
-  z-index: 5;
-}
+  .content { position: relative; z-index: 1; width: 100%; max-width: 800px; }
 
-.search {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 2;
-}
+  /* Header */
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 36px;
+  }
 
-.search input {
-  width: 60%;
-  max-width: 500px;
-  padding: 12px;
-  border: none;
-  border-radius: 10px 0 0 10px;
-  outline: none;
-}
+  .google-logo {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-family: 'Google Sans Display', sans-serif;
+    font-size: 42px;
+    font-weight: 400;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .g-blue { color: #4285f4; }
+  .g-red { color: #ea4335; }
+  .g-yellow { color: #fbbc05; }
+  .g-green { color: #34a853; }
 
-.search button {
-  padding: 12px 16px;
-  border: none;
-  background: #3b82f6;
-  color: white;
-  border-radius: 0 10px 10px 0;
-}
+  .header-sub {
+    font-size: 13px;
+    color: var(--md-on-surface-variant);
+    letter-spacing: 0.02em;
+    margin-top: 2px;
+  }
 
-/* SNAP GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
-  padding: 10px;
-  position: relative;
-  z-index: 2;
-}
+  /* Search bar */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--md-surface);
+    border: 1.5px solid var(--md-outline-variant);
+    border-radius: var(--radius-full);
+    padding: 12px 20px;
+    margin-bottom: 40px;
+    cursor: pointer;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    width: 100%;
+    max-width: 520px;
+  }
+  .search-bar:hover {
+    box-shadow: 0 2px 12px var(--md-shadow-md);
+    border-color: var(--md-outline);
+  }
 
-/* RECTANGLE TILES */
-.tile {
-  height: 70px;
-  background: var(--card);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  cursor: grab;
-  user-select: none;
-}
+  .search-icon { color: var(--md-primary); flex-shrink: 0; }
+  .search-placeholder {
+    color: var(--md-on-surface-variant);
+    font-size: 15px;
+    flex: 1;
+  }
+  .search-divider {
+    width: 1px;
+    height: 22px;
+    background: var(--md-outline-variant);
+    flex-shrink: 0;
+  }
+  .mic-icon { color: var(--md-on-surface-variant); flex-shrink: 0; cursor: pointer; transition: color 0.15s; }
+  .mic-icon:hover { color: var(--md-primary); }
 
-.tile:active { cursor: grabbing; }
+  /* Section labels */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--md-on-surface-variant);
+    margin-bottom: 14px;
+    padding-left: 4px;
+  }
 
-.tile img {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  object-fit: cover;
-}
+  /* Featured app (Gemini) */
+  .featured-row {
+    margin-bottom: 28px;
+  }
 
-/* FOLDERS */
-.folder {
-  background: rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 10px;
-}
+  .featured-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, #e8f0fe 0%, #fce8e6 50%, #e6f4ea 100%);
+    border: 1.5px solid rgba(66,133,244,0.15);
+    border-radius: var(--radius-lg);
+    padding: 22px 28px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
 
-.folder-title {
-  font-size: 13px;
-  margin-bottom: 6px;
-  cursor: pointer;
-  opacity: 0.8;
-}
+  @media (prefers-color-scheme: dark) {
+    .featured-card {
+      background: linear-gradient(135deg, #1a2848 0%, #2d1a1a 50%, #1a2d1f 100%);
+      border-color: rgba(168,199,250,0.15);
+    }
+  }
 
-.folder-content {
-  display: grid;
-  gap: 8px;
-}
+  .featured-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+  .featured-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--md-shadow-md); }
+  .featured-card:hover::after { background: rgba(255,255,255,0.06); }
+  .featured-card:active { transform: translateY(0); }
 
-.settings-btn {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background: var(--card);
-  border: none;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  z-index: 5;
-}
+  .featured-icon-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    flex-shrink: 0;
+  }
 
-.settings {
-  position: fixed;
-  bottom: 70px;
-  left: 20px;
-  background: #111827;
-  padding: 12px;
-  border-radius: 12px;
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 10;
-}
+  .featured-info { flex: 1; }
+  .featured-name {
+    font-family: 'Google Sans Display', sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    background: linear-gradient(90deg, #4285f4, #ea4335, #fbbc05, #34a853);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+  .featured-desc {
+    font-size: 13px;
+    color: var(--md-on-surface-variant);
+    line-height: 1.5;
+  }
 
-.settings button {
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
+  .featured-badge {
+    background: linear-gradient(135deg, #4285f4, #7b68ee);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+  }
 
-.fab {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  background: #3b82f6;
-  border: none;
-  color: white;
-  font-size: 26px;
-  z-index: 5;
-}
+  /* App grid */
+  .apps-section { margin-bottom: 28px; }
 
-.modal {
-  position: fixed;
-  inset: 0;
-  display: none;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-  z-index: 20;
-}
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+  }
 
-.modal-content {
-  background: #0f172a;
-  padding: 20px;
-  border-radius: 12px;
-  width: 320px;
-}
+  .app-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background: var(--md-surface);
+    border: 1.5px solid var(--md-outline-variant);
+    border-radius: var(--radius-md);
+    padding: 18px 10px 14px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s, border-color 0.18s, background 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
 
-.modal-content input {
-  width: 100%;
-  margin: 6px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-}
+  .app-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--app-tint, rgba(66,133,244,0.0));
+    transition: background 0.2s;
+    border-radius: inherit;
+  }
 
-.modal-content button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border: none;
-  background: #3b82f6;
-  color: white;
-  border-radius: 8px;
-}
+  .app-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px var(--md-shadow-md);
+    border-color: var(--md-outline);
+  }
+  .app-card:hover::before { background: var(--app-tint, rgba(66,133,244,0.04)); }
+  .app-card:active { transform: translateY(-1px) scale(1.01); }
+
+  .app-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-name {
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--md-on-surface);
+    line-height: 1.3;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Ripple effect */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transform: scale(0);
+    animation: ripple-anim 0.5s linear;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #323232;
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Clock widget */
+  .clock-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding: 0 4px;
+  }
+  .clock-time {
+    font-family: 'Google Sans Display', sans-serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--md-on-surface);
+    letter-spacing: -0.5px;
+  }
+  .clock-date {
+    font-size: 13px;
+    color: var(--md-on-surface-variant);
+    margin-top: 2px;
+  }
+  .weather-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--md-surface);
+    border: 1.5px solid var(--md-outline-variant);
+    border-radius: var(--radius-full);
+    padding: 8px 16px;
+  }
+  .weather-temp { font-size: 15px; font-weight: 500; }
+  .weather-icon { font-size: 20px; }
 </style>
 </head>
-
 <body>
-<div class="overlay"></div>
-<div class="clock" id="clock"></div>
-<header>Speed Dial Pro</header>
+<div class="content">
 
-<div class="search">
-  <form action="https://www.google.com/search" method="GET" style="display:flex;">
-    <input name="q" placeholder="Search the web..." />
-    <button>Search</button>
-  </form>
-</div>
-
-<div class="grid" id="grid"></div>
-
-<button class="settings-btn" onclick="toggleSettings()">⚙</button>
-
-<div class="settings" id="settings">
-  <button onclick="toggleTheme()">Theme</button>
-  <button onclick="toggleBlur()">Blur</button>
-  <button onclick="setWallpaper()">Wallpaper</button>
-  <button onclick="openModal()">Add Tile</button>
-  <button onclick="addFolder()">Add Folder</button>
-</div>
-
-<button class="fab" onclick="openModal()">+</button>
-
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <input id="name" placeholder="Name" />
-    <input id="url" placeholder="URL (leave empty for folder)" />
-    <input id="img" placeholder="Image URL (optional)" />
-    <button onclick="addTile()">Add</button>
+  <!-- Clock -->
+  <div class="clock-bar">
+    <div>
+      <div class="clock-time" id="clock">12:00</div>
+      <div class="clock-date" id="date">Monday, January 1</div>
+    </div>
+    <div class="weather-pill">
+      <span class="weather-icon">⛅</span>
+      <span class="weather-temp">22°C</span>
+    </div>
   </div>
+
+  <!-- Google Logo + Search -->
+  <div class="header">
+    <div class="google-logo">
+      <span class="g-blue">G</span><span class="g-red">o</span><span class="g-yellow">o</span><span class="g-blue">g</span><span class="g-green">l</span><span class="g-red">e</span>
+    </div>
+    <div class="header-sub">Your Google workspace</div>
+  </div>
+
+  <div style="display:flex;justify-content:center;width:100%;">
+    <div class="search-bar" onclick="openLink('https://www.google.com/search')">
+      <svg class="search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span class="search-placeholder">Search Google or type a URL</span>
+      <div class="search-divider"></div>
+      <svg class="mic-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+    </div>
+  </div>
+
+  <!-- Gemini Featured -->
+  <div class="featured-row">
+    <div class="section-label">AI Assistant</div>
+    <a class="featured-card" href="https://gemini.google.com" target="_blank" rel="noopener">
+      <div class="featured-icon-wrap">
+        <svg width="38" height="38" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="gem-grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#4285f4"/>
+              <stop offset="50%" stop-color="#9b59b6"/>
+              <stop offset="100%" stop-color="#ea4335"/>
+            </linearGradient>
+          </defs>
+          <path d="M24 4C24 4 28 16 36 24C28 32 24 44 24 44C24 44 20 32 12 24C20 16 24 4 24 4Z" fill="url(#gem-grad)"/>
+          <path d="M24 4C24 4 20 16 12 24C20 32 24 44 24 44C24 44 28 32 36 24C28 16 24 4 24 4Z" fill="url(#gem-grad)" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="featured-info">
+        <div class="featured-name">Gemini</div>
+        <div class="featured-desc">Google's most capable AI — chat, create, and explore</div>
+      </div>
+      <div class="featured-badge">AI</div>
+    </a>
+  </div>
+
+  <!-- Productivity -->
+  <div class="apps-section">
+    <div class="section-label">Productivity</div>
+    <div class="app-grid" id="productivity-grid"></div>
+  </div>
+
+  <!-- Communication & Collaboration -->
+  <div class="apps-section">
+    <div class="section-label">Communication</div>
+    <div class="app-grid" id="comms-grid"></div>
+  </div>
+
+  <!-- Explore & Discover -->
+  <div class="apps-section">
+    <div class="section-label">Explore & Discover</div>
+    <div class="app-grid" id="explore-grid"></div>
+  </div>
+
 </div>
 
-<input type="file" id="wallpaperInput" hidden />
+<div class="toast" id="toast"></div>
 
 <script>
-let tiles = JSON.parse(localStorage.getItem("tiles") || "[]");
-let theme = localStorage.getItem("theme") || "dark";
+const apps = {
+  productivity: [
+    {
+      name: 'Gmail',
+      url: 'https://mail.google.com',
+      tint: 'rgba(234,67,53,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="10" fill="#fff"/>
+        <path d="M8 14h32v20a2 2 0 01-2 2H10a2 2 0 01-2-2V14z" fill="#f1f3f4"/>
+        <path d="M8 14l16 12 16-12" stroke="#ea4335" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+        <path d="M8 14l16 12" fill="none" stroke="#c5221f" stroke-width="0.5"/>
+        <rect x="8" y="14" width="32" height="4" fill="#ea4335" rx="1"/>
+        <path d="M8 18l16 10 16-10" fill="#ea4335"/>
+      </svg>`
+    },
+    {
+      name: 'Drive',
+      url: 'https://drive.google.com',
+      tint: 'rgba(52,168,83,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 36l8-14h20l8 14H6z" fill="#34a853"/>
+        <path d="M18 10h12l14 24H32L18 10z" fill="#4285f4"/>
+        <path d="M6 36l14-24h-2L4 36h2z" fill="#ea4335"/>
+        <path d="M18 10l-14 26h4L22 12l-4-2z" fill="#fbbc05"/>
+      </svg>`
+    },
+    {
+      name: 'Docs',
+      url: 'https://docs.google.com',
+      tint: 'rgba(66,133,244,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="6" width="22" height="28" rx="2" fill="#4285f4"/>
+        <path d="M32 6l6 6h-6V6z" fill="#a8c7fa"/>
+        <rect x="14" y="18" width="14" height="2" rx="1" fill="white" opacity="0.8"/>
+        <rect x="14" y="22" width="14" height="2" rx="1" fill="white" opacity="0.8"/>
+        <rect x="14" y="26" width="10" height="2" rx="1" fill="white" opacity="0.8"/>
+        <rect x="14" y="14" width="8" height="2" rx="1" fill="white" opacity="0.8"/>
+      </svg>`
+    },
+    {
+      name: 'Sheets',
+      url: 'https://sheets.google.com',
+      tint: 'rgba(52,168,83,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="6" width="22" height="28" rx="2" fill="#34a853"/>
+        <path d="M32 6l6 6h-6V6z" fill="#a8d5b5"/>
+        <line x1="10" y1="18" x2="38" y2="18" stroke="white" stroke-width="1.5" opacity="0.5"/>
+        <line x1="10" y1="24" x2="38" y2="24" stroke="white" stroke-width="1.5" opacity="0.5"/>
+        <line x1="10" y1="30" x2="38" y2="30" stroke="white" stroke-width="1.5" opacity="0.5"/>
+        <line x1="20" y1="6" x2="20" y2="34" stroke="white" stroke-width="1.5" opacity="0.5"/>
+      </svg>`
+    },
+    {
+      name: 'Slides',
+      url: 'https://slides.google.com',
+      tint: 'rgba(251,188,5,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="10" width="32" height="22" rx="2" fill="#fbbc05"/>
+        <rect x="12" y="14" width="24" height="14" rx="1" fill="white" opacity="0.9"/>
+        <rect x="14" y="16" width="10" height="1.5" rx="0.75" fill="#fbbc05"/>
+        <rect x="14" y="19" width="18" height="1.5" rx="0.75" fill="#fbbc05" opacity="0.5"/>
+        <rect x="14" y="22" width="14" height="1.5" rx="0.75" fill="#fbbc05" opacity="0.5"/>
+        <rect x="20" y="33" width="8" height="3" rx="1" fill="#fbbc05" opacity="0.7"/>
+        <rect x="16" y="36" width="16" height="2" rx="1" fill="#fbbc05" opacity="0.5"/>
+      </svg>`
+    },
+    {
+      name: 'Calendar',
+      url: 'https://calendar.google.com',
+      tint: 'rgba(66,133,244,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="10" width="32" height="30" rx="3" fill="white" stroke="#e8eaed" stroke-width="1.5"/>
+        <rect x="8" y="10" width="32" height="10" rx="3" fill="#1a73e8"/>
+        <rect x="8" y="17" width="32" height="3" fill="#1a73e8"/>
+        <text x="24" y="22" text-anchor="middle" fill="white" font-size="8" font-family="Google Sans" font-weight="600">MAY</text>
+        <text x="24" y="36" text-anchor="middle" fill="#1a73e8" font-size="14" font-family="Google Sans" font-weight="500">18</text>
+        <rect x="16" y="8" width="3" height="6" rx="1.5" fill="#1a73e8"/>
+        <rect x="29" y="8" width="3" height="6" rx="1.5" fill="#1a73e8"/>
+      </svg>`
+    },
+  ],
+  comms: [
+    {
+      name: 'Meet',
+      url: 'https://meet.google.com',
+      tint: 'rgba(52,168,83,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="14" width="26" height="20" rx="3" fill="#00832d"/>
+        <path d="M32 20l10-6v20l-10-6V20z" fill="#00ac47"/>
+        <rect x="10" y="18" width="18" height="12" rx="2" fill="#00ac47" opacity="0.3"/>
+      </svg>`
+    },
+    {
+      name: 'Photos',
+      url: 'https://photos.google.com',
+      tint: 'rgba(66,133,244,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="12" r="8" fill="#ea4335"/>
+        <circle cx="36" cy="28" r="8" fill="#fbbc05"/>
+        <circle cx="12" cy="28" r="8" fill="#4285f4"/>
+        <circle cx="24" cy="36" r="8" fill="#34a853"/>
+      </svg>`
+    },
+    {
+      name: 'Translate',
+      url: 'https://translate.google.com',
+      tint: 'rgba(66,133,244,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="8" width="20" height="18" rx="3" fill="#4285f4"/>
+        <rect x="24" y="22" width="20" height="18" rx="3" fill="#34a853"/>
+        <text x="14" y="21" text-anchor="middle" fill="white" font-size="11" font-family="Google Sans" font-weight="500">A</text>
+        <text x="34" y="35" text-anchor="middle" fill="white" font-size="11" font-family="sans-serif" font-weight="500">文</text>
+        <path d="M21 20l6-6" stroke="#fbbc05" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M27 20l-6-6" stroke="#fbbc05" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>`
+    },
+  ],
+  explore: [
+    {
+      name: 'News',
+      url: 'https://news.google.com',
+      tint: 'rgba(66,133,244,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="10" width="36" height="28" rx="3" fill="#4285f4"/>
+        <rect x="10" y="14" width="12" height="12" rx="2" fill="white"/>
+        <rect x="26" y="14" width="12" height="2.5" rx="1.25" fill="white" opacity="0.8"/>
+        <rect x="26" y="19" width="10" height="2" rx="1" fill="white" opacity="0.5"/>
+        <rect x="26" y="23" width="12" height="2" rx="1" fill="white" opacity="0.5"/>
+        <rect x="10" y="30" width="28" height="2" rx="1" fill="white" opacity="0.4"/>
+        <rect x="10" y="34" width="20" height="2" rx="1" fill="white" opacity="0.4"/>
+      </svg>`
+    },
+    {
+      name: 'Finance',
+      url: 'https://finance.google.com',
+      tint: 'rgba(52,168,83,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="8" width="36" height="32" rx="3" fill="#e6f4ea"/>
+        <polyline points="10,34 18,24 24,28 32,16 38,20" fill="none" stroke="#34a853" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="38" cy="20" r="2.5" fill="#34a853"/>
+        <rect x="10" y="36" width="8" height="2" rx="1" fill="#34a853" opacity="0.4"/>
+        <rect x="20" y="36" width="5" height="2" rx="1" fill="#34a853" opacity="0.4"/>
+      </svg>`
+    },
+    {
+      name: 'Trends',
+      url: 'https://trends.google.com',
+      tint: 'rgba(234,67,53,0.04)',
+      icon: `<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="trend-grad" x1="0" y1="0" x2="48" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#4285f4"/>
+            <stop offset="33%" stop-color="#ea4335"/>
+            <stop offset="66%" stop-color="#fbbc05"/>
+            <stop offset="100%" stop-color="#34a853"/>
+          </linearGradient>
+        </defs>
+        <rect x="6" y="8" width="36" height="32" rx="3" fill="white" stroke="#e8eaed" stroke-width="1.5"/>
+        <polyline points="10,36 18,28 24,32 32,18 38,22" fill="none" stroke="url(#trend-grad)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M36 14l4 0 0 4" fill="none" stroke="#ea4335" stroke-width="2" stroke-linecap="round"/>
+        <line x1="38" y1="16" x2="32" y2="22" stroke="#ea4335" stroke-width="2" stroke-linecap="round"/>
+      </svg>`
+    },
+  ]
+};
 
-document.body.className = theme;
+function renderGrid(containerId, items) {
+  const grid = document.getElementById(containerId);
+  items.forEach((app, i) => {
+    const card = document.createElement('a');
+    card.className = 'app-card';
+    card.href = app.url;
+    card.target = '_blank';
+    card.rel = 'noopener';
+    card.style.setProperty('--app-tint', app.tint);
+    card.style.animationDelay = `${i * 60}ms`;
 
-if (localStorage.getItem("wallpaper")) {
-  document.body.style.backgroundImage = `url(${localStorage.getItem("wallpaper")})`;
+    card.innerHTML = `
+      <div class="app-icon-wrap">${app.icon}</div>
+      <span class="app-name">${app.name}</span>
+    `;
+
+    card.addEventListener('click', (e) => {
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const rect = card.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+      card.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+
+    grid.appendChild(card);
+  });
 }
+
+renderGrid('productivity-grid', apps.productivity);
+renderGrid('comms-grid', apps.comms);
+renderGrid('explore-grid', apps.explore);
 
 function updateClock() {
   const now = new Date();
-  document.getElementById("clock").innerText =
-    now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}`;
+  document.getElementById('date').textContent = now.toLocaleDateString('en-AU', { weekday:'long', month:'long', day:'numeric' });
 }
-setInterval(updateClock, 1000);
 updateClock();
+setInterval(updateClock, 10000);
 
-function toggleSettings() {
-  const s = document.getElementById("settings");
-  s.style.display = s.style.display === "flex" ? "none" : "flex";
-}
-
-function toggleTheme() {
-  theme = theme === "dark" ? "light" : "dark";
-  document.body.className = theme;
-  localStorage.setItem("theme", theme);
-}
-
-function toggleBlur() {
-  const current = getComputedStyle(document.documentElement)
-    .getPropertyValue("--blur").trim();
-
-  document.documentElement.style.setProperty(
-    "--blur",
-    current === "0px" ? "10px" : "0px"
-  );
-}
-
-function setWallpaper() {
-  wallpaperInput.click();
-}
-
-wallpaperInput.onchange = (e) => {
-  const r = new FileReader();
-  r.onload = (ev) => {
-    localStorage.setItem("wallpaper", ev.target.result);
-    document.body.style.backgroundImage = `url(${ev.target.result})`;
-  };
-  r.readAsDataURL(e.target.files[0]);
-};
-
-function render() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-
-  tiles.forEach((t, i) => {
-
-    /* FOLDER */
-    if (t.type === "folder") {
-      const f = document.createElement("div");
-      f.className = "folder";
-
-      const title = document.createElement("div");
-      title.className = "folder-title";
-      title.innerText = "📁 " + t.name;
-
-      const content = document.createElement("div");
-      content.className = "folder-content";
-
-      t.items.forEach(item => {
-        const d = document.createElement("div");
-        d.className = "tile";
-        d.innerHTML = `<img src='https://www.google.com/s2/favicons?sz=64&domain=${item.url}'><span>${item.name}</span>`;
-        d.onclick = () => window.open(item.url);
-        content.appendChild(d);
-      });
-
-      let open = true;
-      title.onclick = () => {
-        open = !open;
-        content.style.display = open ? "grid" : "none";
-      };
-
-      f.appendChild(title);
-      f.appendChild(content);
-      grid.appendChild(f);
-      return;
-    }
-
-    /* TILE */
-    const div = document.createElement("div");
-    div.className = "tile";
-    div.draggable = true;
-
-    const img = t.img || `https://www.google.com/s2/favicons?sz=64&domain=${t.url}`;
-
-    div.innerHTML = `<img src="${img}"><span>${t.name}</span>`;
-
-    div.onclick = () => window.open(t.url, "_blank");
-
-    grid.appendChild(div);
-  });
-
-  localStorage.setItem("tiles", JSON.stringify(tiles));
-}
-
-function openModal() {
-  modal.style.display = "flex";
-}
-
-function addTile() {
-  tiles.push({ name: name.value, url: url.value, img: img.value });
-  modal.style.display = "none";
-  render();
-}
-
-function addFolder() {
-  tiles.push({
-    type: "folder",
-    name: "New Folder",
-    items: []
-  });
-  render();
-}
-
-window.onclick = (e) => {
-  if (e.target.id === "modal") modal.style.display = "none";
-};
-
-render();
+function openLink(url) { window.open(url, '_blank'); }
 </script>
 </body>
 </html>
